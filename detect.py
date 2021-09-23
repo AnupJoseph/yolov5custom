@@ -69,11 +69,12 @@ def run(
     hide_labels=False,  # hide labels
     hide_conf=False,  # hide confidences
     half=False,  # use FP16 half-precision inference
-    test=False
+    test=False,
 ):
     if test:
         print(locals())
         return None
+
     save_img = not nosave and not source.endswith(".txt")  # save inference images
     webcam = (
         source.isnumeric()
@@ -459,5 +460,5 @@ def main_runner(image_path):
         view_img=False,
         visualize=False,
         weights=["runs/train/yolo_plate_detection/weights/best.pt"],
-        test=True
+        test=False,
     )
