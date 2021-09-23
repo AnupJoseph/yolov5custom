@@ -436,7 +436,7 @@ def main_runner(image_path):
     check_requirements(exclude=("tensorboard", "thop"))
     # run(weights="runs/train/yolo_plate_detection/weights/best.pt", source=image_path)
     run(
-        gnostic_nms=False,
+        agnostic_nms=False,
         augment=False,
         classes=None,
         conf_thres=0.25,
