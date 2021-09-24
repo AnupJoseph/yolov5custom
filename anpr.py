@@ -10,9 +10,10 @@ from ocr import make_pipeline, make__predictions
 
 # Standard library
 import pathlib
+import os
 
 pipeline = make_pipeline()
-
+CROP_DIR = "/content/yolov5custom/runs/detect/yolo_plate_detection/crops/plate"
 
 def path_builder(path):
     path = pathlib.Path(path)
@@ -20,23 +21,23 @@ def path_builder(path):
     saved_path = (
         pathlib.Path("/content/yolov5custom/runs/detect/yolo_plate_detection") / name
     )
-    crop_path = (
-        pathlib.Path(
-            "/content/yolov5custom/runs/detect/yolo_plate_detection/crops/plate"
-        )
-        / name
+    crop_path = (pathlib.Path(CROP_DIR) / name
     )
     return str(saved_path), str(crop_path)
+
+def run_cleanup():
+    for f in os.listdir(CROP_DIR):
+        os.remove(os.path.join(CROP_DIR, f))
 
 
 class ANPRApp(HydraHeadApp):
     def run(self):
         st.title("Licence Plate detection system")
-        uploaded_file_path = st.file_uploader("Choose an image...", type=["jpg", "png"])
+        uploaded_file_path = st.file_uploader("Choose an image...", type=["jpg", "png","jpeg"])
         image = Image.open(uploaded_file_path)
         image.save(f"/content/yolov5custom/{uploaded_file_path.name}")
         if image is not None:
-            # run_cleanup()
+            run_cleanup()
             st.image(image, caption="Uploaded Image", use_column_width=True)
             saved, crop = path_builder(uploaded_file_path.name)
             # st.text(f"{saved},{crop},{uploaded_file_path.name}")
@@ -52,13 +53,14 @@ class ANPRApp(HydraHeadApp):
 
                 # if st.button("Gather text"):
                 with st.spinner("Loading OCR"):
-                    predicted_groups, fig = make__predictions(crop,pipeline)
-                st.pyplot(fig)
-                chunks = f""
-                for predicted_group in predicted_groups:
-                    for chunk in predicted_group:
-                      chunks+=f"{chunk[0]} "
-                        # st.text(chunk[0])
-                st.text(chunks)
+                    for f in os.listdir(CROP_DIR):
+                        predicted_groups, fig = make__predictions(str(pathlib.Path(CROP_DIR)/f),pipeline)
+                        st.pyplot(fig)
+                        chunks = f""
+                        for predicted_group in predicted_groups:
+                            for chunk in predicted_group:
+                                chunks+=f"{chunk[0]} "
+                                # st.text(chunk[0])
+                        st.text(chunks)
                 # st.text(predicted_groups)
                 # st.table(predicted_groups)
